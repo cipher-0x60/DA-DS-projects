@@ -1,1 +1,14 @@
 **/datasets/*.csv
+**/datasets/*.xls
+
+# Ignore a specific file
+secrets.json
+
+# Ignore a specific folder and all its contents
+node_modules/
+bin/
+obj/
+
+# Ignore all files with a certain extension
+*.log
+*.tmp
