@@ -1,5 +1,5 @@
 **/datasets/*.csv
-**/datasets/*.xls
+**/datasets/*.xlsx
 
 # Ignore a specific file
 secrets.json
