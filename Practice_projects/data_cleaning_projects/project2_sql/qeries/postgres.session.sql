@@ -3,7 +3,6 @@
 --- ======================================================
 
 CREATE DATABASE data_cleaning_project;
-
 CREATE TABLE project_2(
     Transaction_ID VARCHAR(50) NOT NULL,
     Item VARCHAR(50),
@@ -37,35 +36,50 @@ SELECT * from project_2;
 
 -- Completeness
 CREATE VIEW null_check AS
-SELECT
-    COUNT(*) as total_rows,
-
-    COUNT (*) FILTER (WHERE transaction_id is null or trim(transaction_id) = '') AS missing_transaction_id,
-
-    COUNT (*) FILTER (WHERE item is null or trim(item) = '') AS missing_item,
-
-    COUNT (*) FILTER (WHERE quantity is null or trim(quantity) = '') AS missing_quantity,
-
-    COUNT (*) FILTER (WHERE price_per_unit is null or trim(price_per_unit) = '') AS missing_price_per_unit,
-
-    COUNT (*) FILTER (WHERE total_spent is null or trim(total_spent) = '') AS missing_total_spent,
-
-    COUNT (*) FILTER (WHERE payment_method is null or trim(payment_method) = '') AS missing_payment_method,
-
-    COUNT (*) FILTER (WHERE location is null or trim(location) = '') AS missing_location,
-
-    COUNT (*) FILTER (WHERE transaction_date is null or trim(transaction_date) = '') AS missing_transaction_date
+SELECT COUNT(*) as total_rows,
+    COUNT (*) FILTER (
+        WHERE transaction_id is null
+            or trim(transaction_id) = ''
+    ) AS missing_transaction_id,
+    COUNT (*) FILTER (
+        WHERE item is null
+            or trim(item) = ''
+    ) AS missing_item,
+    COUNT (*) FILTER (
+        WHERE quantity is null
+            or trim(quantity) = ''
+    ) AS missing_quantity,
+    COUNT (*) FILTER (
+        WHERE price_per_unit is null
+            or trim(price_per_unit) = ''
+    ) AS missing_price_per_unit,
+    COUNT (*) FILTER (
+        WHERE total_spent is null
+            or trim(total_spent) = ''
+    ) AS missing_total_spent,
+    COUNT (*) FILTER (
+        WHERE payment_method is null
+            or trim(payment_method) = ''
+    ) AS missing_payment_method,
+    COUNT (*) FILTER (
+        WHERE location is null
+            or trim(location) = ''
+    ) AS missing_location,
+    COUNT (*) FILTER (
+        WHERE transaction_date is null
+            or trim(transaction_date) = ''
+    ) AS missing_transaction_date
 FROM project_2;
 
 -- Consistency of Data (e.g. improper naming convention)
 
 -- transaction_id -- checking uniqueness and duplicate tracnsaction_id's
 CREATE VIEW transaction_id_improper_naming_convention AS
-SELECT
-    transaction_id, COUNT(*) as total_rows
+SELECT transaction_id,
+    COUNT(*) as total_rows
 FROM project_2
 GROUP BY 1
-HAVING COUNT(*) >1 
+HAVING COUNT(*) > 1
 ORDER BY total_rows DESC;
 -- result in transaction column does not have any transaction_id which is repetited or other than that.
 
@@ -74,8 +88,8 @@ ORDER BY total_rows DESC;
 -- item -- checking the total_rows in each item
 -- this will tell the all the item names presented in data (eg. null,NULL, cookie, Cookie types)
 CREATE VIEW item_improper_naming_convention AS
-SELECT
-    item, COUNT(*) as total_rows
+SELECT item,
+    COUNT(*) as total_rows
 FROM project_2
 GROUP BY 1
 ORDER BY total_rows DESC;
@@ -86,8 +100,8 @@ ORDER BY total_rows DESC;
 -- quantity -- checking the total_rows in each quantity
 -- this will tell the all the quantity presented in data (eg. 0,1,-1,unknown,null,Null types)
 CREATE VIEW quantity_improper_naming_convention AS
-SELECT
-    quantity, COUNT(*) as total_rows
+SELECT quantity,
+    COUNT(*) as total_rows
 FROM project_2
 GROUP BY 1
 ORDER BY total_rows DESC;
@@ -98,8 +112,8 @@ ORDER BY total_rows DESC;
 -- price_per_unit -- checking the total_rows in each price_per_unit
 -- this will tell the all the price_per_unit presented in data (eg. 0,1,-1,unknown,null,Null types)
 CREATE VIEW price_per_unit_improper_naming_convention AS
-SELECT
-    price_per_unit, COUNT(*) as total_rows
+SELECT price_per_unit,
+    COUNT(*) as total_rows
 FROM project_2
 GROUP BY 1
 ORDER BY total_rows DESC;
@@ -110,8 +124,8 @@ ORDER BY total_rows DESC;
 -- total_spent -- checking the total_rows in each total_spent
 -- this will tell the all the total_spent presented in data (eg. 0,1,-1,unknown,null,Null types)
 CREATE VIEW total_spent_improper_naming_convention AS
-SELECT
-    total_spent, COUNT(*) as total_rows
+SELECT total_spent,
+    COUNT(*) as total_rows
 FROM project_2
 GROUP BY 1
 ORDER BY total_rows DESC;
@@ -122,8 +136,8 @@ ORDER BY total_rows DESC;
 -- payment_method-- checking the total_rows in each payment_method
 -- this will tell the all the payment_method presented in data (eg. 0,1,-1,unknown,null,Null types)
 CREATE VIEW payment_method_improper_naming_convention AS
-SELECT
-    payment_method, COUNT(*) as total_rows
+SELECT payment_method,
+    COUNT(*) as total_rows
 FROM project_2
 GROUP BY 1
 ORDER BY total_rows DESC;
@@ -135,8 +149,8 @@ ORDER BY total_rows DESC;
 -- location-- checking the total_rows in each location
 -- this will tell the all the location presented in data (eg. 0,1,-1,unknown,null,Null types)
 CREATE VIEW location_method_improper_naming_convention AS
-SELECT
-    location, COUNT(*) as total_rows
+SELECT location,
+    COUNT(*) as total_rows
 FROM project_2
 GROUP BY 1
 ORDER BY total_rows DESC;
@@ -147,8 +161,7 @@ ORDER BY total_rows DESC;
 -- transaction_date-- checking the total_rows in each transaction_date
 -- this will tell the all the transaction_date presented in data (eg. 0,1,-1,unknown,null,Null types)
 CREATE VIEW transaction_date_improper_naming_convention AS
-SELECT
-    transaction_date,
+SELECT transaction_date,
     COUNT(*) AS total_rows
 FROM project_2
 WHERE transaction_date IS NULL
