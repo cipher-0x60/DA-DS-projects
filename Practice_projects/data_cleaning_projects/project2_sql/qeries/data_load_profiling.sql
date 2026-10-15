@@ -214,4 +214,21 @@ SELECT COUNT(*) AS total_rows,
 FROM project_2;
 
 
+-- duplicates
+SELECT *,
+    row_number() over(partition by transaction_id ORDER BY transaction_id) as row_num
+FROM project_2;
 
+WITH numberd_rows 
+    AS (
+        SELECT *,
+            ROW_NUMBER() 
+                OVER(
+                    PARTITION BY transaction_id
+                    ORDER BY transaction_id)
+                    AS row_num
+        FROM project_2
+        )
+SELECT * 
+FROM numberd_rows
+WHERE row_num>1;
