@@ -318,11 +318,9 @@ WHERE item = 'UNKNOWN'
     OR transaction_date = 'UNKNOWN';
 
 -- handling the null values 
--- From Data_Profiling we got that item, quantity, price_per_unit, payment_method, location, transaction_date has postgresql NULL values.
+-- From Data_Profiling we got that location, payment_method, quantity, item,  price_per_unit, transaction_date has postgresql NULL values.
 
 -- item column's NULL values filling with Unknown
-
-
 UPDATE project_2
 set item = 'Unknown'
 WHERE item is null;
@@ -330,14 +328,145 @@ WHERE item is null;
 SELECT * FROM project_2
 WHERE item is null;
 
+-- location column's NULL values
+UPDATE project_2
+SET location = 'Unknown'
+WHERE location IS NULL;
+
+-- payment_method
+UPDATE project_2
+SET payment_method = 'Unknown'
+WHERE payment_method IS NULL;
+
+
 -- quantity column's NULL values filling 
+-- to check the distict items where the quantity is NULL
+-- result = Cake, Salad, Tea,Coffee, Juice,Smoothie, Sandwich,Cookie
+SELECT  DISTINCT(item) FROM project_2
+WHERE quantity is null;
 
-SELECT * FROM project_2;
+-- to check the distinct price per unit for each item
+SELECT DISTINCT item, price_per_unit 
+FROM project_2
+WHERE price_per_unit is not null
+ORDER BY item;
 
 
-SELECT *,
-    CASE 
-        WHEN item = 'Juice' AND price_per_unit ='3.0' AND total_spent = '6.0' Then '2'
-        ELSE quantity
-    END AS quantity_check
-FROM project_2;
+SELECT price_per_unit, item 
+FROM project_2
+GROUP BY price_per_unit, item;
+
+
+SELECT item, price_per_unit, total_spent, quantity FROM project_2
+WHERE item = 'Juice' AND quantity is null;
+
+SELECT item, price_per_unit, total_spent, quantity FROM project_2
+WHERE item = 'Tea' AND quantity is null;
+
+SELECT item, price_per_unit, total_spent, quantity FROM project_2
+WHERE item = 'Smoothie' AND quantity is null;
+
+SELECT item, price_per_unit, total_spent, quantity FROM project_2
+WHERE item = 'Cookie' AND quantity is null;
+
+SELECT item, price_per_unit, total_spent, quantity FROM project_2
+WHERE item = 'Sandwich' AND quantity is null;
+
+SELECT item, price_per_unit, total_spent, quantity FROM project_2
+WHERE item = 'Salad' AND quantity is null;
+
+SELECT item, price_per_unit, total_spent, quantity FROM project_2
+WHERE item = 'Cake' AND quantity is null;
+
+SELECT item, price_per_unit, total_spent, quantity FROM project_2
+WHERE item = 'Coffee' AND quantity is null;
+
+UPDATE project_2
+SET quantity = CASE 
+    -- JUICE NESTED BLOCK
+    WHEN item = 'Juice' AND price_per_unit = '3.0' THEN
+        CASE 
+            WHEN total_spent = '3.0'  THEN '1'
+            WHEN total_spent = '6.0'  THEN '2'
+            WHEN total_spent = '9.0'  THEN '3'
+            WHEN total_spent = '12.0' THEN '4'
+            WHEN total_spent = '15.0' THEN '5'
+            ELSE quantity
+        END
+    
+    -- TEA NESTED BLOCK
+    WHEN item = 'Tea' AND price_per_unit = '1.5' THEN
+        CASE 
+            WHEN total_spent = '1.5' THEN '1'
+            WHEN total_spent = '3.0' THEN '2'
+            WHEN total_spent = '4.5' THEN '3'
+            ELSE quantity
+        END
+
+    -- SMOOTHIE NESTED BLOCK
+    WHEN item = 'Smoothie' AND price_per_unit = '4.0' THEN
+        CASE 
+            WHEN total_spent = '4.0'  THEN '1'
+            WHEN total_spent = '12.0' THEN '3'
+            ELSE quantity
+        END
+
+    -- COOKIE NESTED BLOCK
+    WHEN item = 'Cookie' AND price_per_unit = '1.0' THEN
+        CASE 
+            WHEN total_spent = '1.0' THEN '1'
+            WHEN total_spent = '2.0' THEN '2'
+            WHEN total_spent = '3.0' THEN '3'
+            WHEN total_spent = '4.0' THEN '4'
+            WHEN total_spent = '5.0' THEN '5'
+            ELSE quantity
+        END
+
+    -- SANDWICH NESTED BLOCK
+    WHEN item = 'Sandwich' AND price_per_unit = '4.0' THEN
+        CASE 
+            WHEN total_spent = '4.0'  THEN '1'
+            WHEN total_spent = '8.0'  THEN '2'
+            WHEN total_spent = '12.0' THEN '3'
+            WHEN total_spent = '20.0' THEN '5'
+            ELSE quantity
+        END
+
+    -- SALAD NESTED BLOCK
+    WHEN item = 'Salad' AND price_per_unit = '5.0' THEN
+        CASE 
+            WHEN total_spent = '5.0'  THEN '1'
+            WHEN total_spent = '10.0' THEN '2'
+            WHEN total_spent = '15.0' THEN '3'
+            WHEN total_spent = '20.0' THEN '4'
+            WHEN total_spent = '25.0' THEN '5'
+            ELSE quantity
+        END
+
+    -- CAKE NESTED BLOCK
+    WHEN item = 'Cake' AND price_per_unit = '3.0' THEN
+        CASE 
+            WHEN total_spent = '3.0'  THEN '1'
+            WHEN total_spent = '6.0'  THEN '2'
+            WHEN total_spent = '9.0'  THEN '3'
+            WHEN total_spent = '12.0' THEN '4'
+            WHEN total_spent = '15.0' THEN '5'
+            ELSE quantity
+        END
+
+    -- COFFEE NESTED BLOCK
+    WHEN item = 'Coffee' AND price_per_unit = '2.0' THEN
+        CASE 
+            WHEN total_spent = '2.0'  THEN '1'
+            WHEN total_spent = '4.0'  THEN '2'
+            WHEN total_spent = '6.0'  THEN '3'
+            WHEN total_spent = '8.0'  THEN '4'
+            WHEN total_spent = '10.0' THEN '5'
+            ELSE quantity
+        END
+    
+    ELSE quantity
+END
+WHERE quantity IS NULL;
+
+-- item,  price_per_unit, transaction_date
