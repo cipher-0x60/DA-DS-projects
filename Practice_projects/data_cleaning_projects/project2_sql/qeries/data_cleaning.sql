@@ -317,3 +317,27 @@ WHERE item = 'UNKNOWN'
     OR total_spent = 'UNKNOWN' 
     OR transaction_date = 'UNKNOWN';
 
+-- handling the null values 
+-- From Data_Profiling we got that item, quantity, price_per_unit, payment_method, location, transaction_date has postgresql NULL values.
+
+-- item column's NULL values filling with Unknown
+
+
+UPDATE project_2
+set item = 'Unknown'
+WHERE item is null;
+
+SELECT * FROM project_2
+WHERE item is null;
+
+-- quantity column's NULL values filling 
+
+SELECT * FROM project_2;
+
+
+SELECT *,
+    CASE 
+        WHEN item = 'Juice' AND price_per_unit ='3.0' AND total_spent = '6.0' Then '2'
+        ELSE quantity
+    END AS quantity_check
+FROM project_2;
