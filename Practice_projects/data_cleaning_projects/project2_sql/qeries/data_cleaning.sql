@@ -186,28 +186,7 @@ SELECT
 FROM project_2
 GROUP BY price_per_unit
 ORDER BY distinct_items DESC;
---Result some price_per_unit contains 2 or more then 2 items which means we can not fill this.
-
-
------------------------------------------------------------------------------------
-
-SELECT
-    item,
-    quantity,
-    price_per_unit,
-    total_spent,
-    COUNT(*) AS total_rows
-FROM project_2
-WHERE UPPER(TRIM(item))
-    IN ('UNKNOWN', 'NULL', 'ERROR')
-    OR TRIM(item) = ''
-GROUP BY
-    item,
-    quantity,
-    price_per_unit,
-    total_spent
-ORDER BY total_rows DESC;
-
+--Result some price_per_unit contains 2 or more then 2 items which means we can not fill these.
 
 
 -----------------------------------------------------------------------------------
@@ -469,4 +448,119 @@ SET quantity = CASE
 END
 WHERE quantity IS NULL;
 
--- item,  price_per_unit, transaction_date
+
+-- item, price_per_unit
+
+SELECT distinct(item), quantity, price_per_unit, total_spent 
+FROM project_2;
+
+SELECT price_per_unit, item, total_spent, quantity
+FROM project_2
+GROUP BY price_per_unit, item, total_spent, quantity;
+
+-- cookie price is distinct 1.0, salad price is distinct 5.0, Tea = 1.5, coffee  = 2.0 
+
+
+WITH corrected AS (
+    SELECT
+        ctid,
+        CASE
+            WHEN UPPER(TRIM(item)) = 'UNKNOWN'
+                AND price_per_unit::NUMERIC = 1.0
+                THEN 'Cookie'
+            WHEN UPPER(TRIM(item)) = 'UNKNOWN'
+                AND price_per_unit::NUMERIC = 5.0
+                THEN 'Salad'
+            WHEN UPPER(TRIM(item)) = 'UNKNOWN'
+                AND price_per_unit::NUMERIC = 1.5
+                THEN 'Tea'
+            WHEN UPPER(TRIM(item)) = 'UNKNOWN'
+                AND price_per_unit::NUMERIC = 2.0
+                THEN 'Coffee'
+            ELSE item
+        END AS corrected_item,
+
+        COALESCE(
+            price_per_unit::NUMERIC,
+            CASE
+                WHEN item = 'Cookie'   THEN 1.0
+                WHEN item = 'Salad'    THEN 5.0
+                WHEN item = 'Tea'      THEN 1.5
+                WHEN item = 'Coffee'   THEN 2.0
+                WHEN item IN ('Smoothie', 'Sandwich') THEN 4.0
+                WHEN item IN ('Juice', 'Cake')        THEN 3.0
+            END
+        ) AS corrected_price,
+
+        quantity::NUMERIC AS corrected_quantity,
+        total_spent::NUMERIC AS original_total
+    FROM project_2
+),
+final_values AS (
+    SELECT
+        ctid,
+        corrected_item,
+        corrected_price,
+        CASE
+            WHEN original_total IS NULL
+                AND corrected_price IS NOT NULL
+                AND corrected_quantity IS NOT NULL
+            THEN corrected_quantity * corrected_price
+            ELSE original_total
+        END AS corrected_total
+    FROM corrected
+)
+UPDATE project_2 AS p
+SET
+    item = f.corrected_item,
+    price_per_unit = f.corrected_price,
+    total_spent = f.corrected_total
+FROM final_values AS f
+WHERE p.ctid = f.ctid
+    AND (
+        UPPER(TRIM(p.item)) = 'UNKNOWN'
+        OR p.price_per_unit IS NULL
+        OR p.total_spent IS NULL
+    );
+
+
+-- Check unresolved unknown items
+SELECT COUNT(*) AS unknown_items_remaining
+FROM project_2
+WHERE UPPER(TRIM(item)) = 'UNKNOWN';
+
+-- Check remaining missing values
+SELECT
+    COUNT(*) FILTER (WHERE item IS NULL) AS missing_items,
+    COUNT(*) FILTER (WHERE price_per_unit IS NULL) AS missing_prices,
+    COUNT(*) FILTER (WHERE total_spent IS NULL) AS missing_totals
+FROM project_2;
+
+-- Check whether totals match quantity × unit price
+SELECT *
+FROM project_2
+WHERE quantity IS NOT NULL
+    AND price_per_unit IS NOT NULL
+    AND total_spent IS NOT NULL
+    AND ABS(
+        total_spent::NUMERIC
+      - quantity::NUMERIC * price_per_unit::NUMERIC
+    ) > 0.01;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- , transaction_date
