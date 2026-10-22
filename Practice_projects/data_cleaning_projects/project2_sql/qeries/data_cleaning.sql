@@ -558,9 +558,4 @@ WHERE quantity IS NOT NULL
 
 
 
-
-
-
-
-
 -- , transaction_date
